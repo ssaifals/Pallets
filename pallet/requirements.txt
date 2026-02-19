@@ -1,0 +1,20 @@
+# --- Core Application ---
+streamlit>=1.31.0
+pandas>=2.2.0
+plotly>=5.18.0
+requests>=2.31.0
+
+# --- Database & Backend ---
+sqlalchemy>=2.0.25
+psycopg2-binary>=2.9.9
+alembic>=1.13.0  # Keep this if you use migration scripts
+bcrypt>=3.2.0
+
+# --- Utilities & Config ---
+python-dotenv>=1.0.0
+pydantic>=2.6.0
+pydantic-settings>=2.1.0
+openpyxl>=3.1.2  # Needed for Excel export/import if used
+
+# --- Performance ---
+watchdog>=4.0.0

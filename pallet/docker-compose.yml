@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # 1. Database Service
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345       # Updated to match your code's expectation
+      POSTGRES_DB: pallet_ledger
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432" # Allows you to connect via pgAdmin/VS Code on localhost
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Main Application Service (Combined Frontend + Logic)
+  app:
+    image: python:3.13-slim        # Matches your Python version
+    working_dir: /app
+    volumes:
+      - .:/app                     # Maps your CURRENT root folder to the container
+    ports:
+      - "8501:8501"
+    environment:
+      # ⚠️ CRITICAL: Inside Docker, the host is 'postgres', NOT 'localhost'
+      - DATABASE_URL=postgresql://postgres:12345@postgres:5432/pallet_ledger
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Install dependencies and launch app
+    command: >
+      sh -c "pip install -r requirements.txt &&
+             streamlit run app.py --server.port 8501 --server.address 0.0.0.0"
+
+volumes:
+  postgres_data:

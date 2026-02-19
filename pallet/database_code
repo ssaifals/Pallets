@@ -1,0 +1,119 @@
+
+DROP TABLE IF EXISTS report_movements CASCADE;
+DROP TABLE IF EXISTS reconciliation_reports CASCADE;
+DROP TABLE IF EXISTS ledger_audit_logs CASCADE;
+DROP TABLE IF EXISTS pallet_movements CASCADE;
+DROP TABLE IF EXISTS inventory_balances CASCADE;
+DROP TABLE IF EXISTS asset_types CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS locations CASCADE;
+
+DROP TABLE IF EXISTS movements CASCADE; 
+
+
+
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) DEFAULT 'Viewer',
+    last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE locations (
+    code VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    location_type VARCHAR(50) DEFAULT 'forward_base',
+    
+    
+    max_capacity INTEGER DEFAULT 1000,
+    current_stock INTEGER DEFAULT 0,
+    operational_status VARCHAR(20) DEFAULT 'ACTIVE',
+    
+   
+    contact_person VARCHAR(100),
+    contact_phone VARCHAR(20),
+    coordinates VARCHAR(100), 
+    
+    
+    region VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE inventory_balances (
+    id SERIAL PRIMARY KEY,
+    location_code VARCHAR(20) REFERENCES locations(code) ON DELETE CASCADE,
+    quantity INTEGER DEFAULT 0,
+    quantity_allocated INTEGER DEFAULT 0,
+    quantity_available INTEGER DEFAULT 0,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE pallet_movements (
+    id SERIAL PRIMARY KEY,
+    uuid VARCHAR(36),
+    mission_id VARCHAR(50),
+    reference_id VARCHAR(100),
+    
+    
+    from_location_code VARCHAR(20) REFERENCES locations(code),
+    to_location_code VARCHAR(20) REFERENCES locations(code),
+    
+    
+    quantity INTEGER NOT NULL,
+    status VARCHAR(20) DEFAULT 'completed',
+    movement_type VARCHAR(30) DEFAULT 'deployment',
+    priority VARCHAR(20) DEFAULT 'Normal',
+    
+    
+    movement_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+    entered_by VARCHAR(100),
+    confirmed_by VARCHAR(100),
+    
+    
+    is_reconciled BOOLEAN DEFAULT FALSE,
+    has_discrepancy BOOLEAN DEFAULT FALSE
+);
+
+
+CREATE TABLE asset_types (
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(20) UNIQUE,
+    name VARCHAR(100),
+    category VARCHAR(50),
+    weight_kg FLOAT DEFAULT 25.0
+);
+
+
+
+INSERT INTO locations (code, name, location_type, operational_status, max_capacity, current_stock, contact_person, coordinates)
+VALUES 
+    ('SYSTEM', 'System Adjustment Account', 'Virtual', 'ACTIVE', 999999, 0, 'System Admin', NULL),
+    ('DXB-HQ', 'Dubai Main Airbase', 'main_base', 'ACTIVE', 5000, 450, 'Maj. Al-Falasi', '25.2532, 55.3657'),
+    ('RAK-FWD', 'RAK Forward Base', 'forward_base', 'ACTIVE', 1000, 120, 'Capt. Ahmed', '25.6092, 55.9367'),
+    ('FUJ-DEPOT', 'Fujairah Naval Depot', 'logistics_hub', 'ACTIVE', 2000, 300, 'Lt. Sarah', '25.1288, 56.3265');
+
+
+INSERT INTO inventory_balances (location_code, quantity, quantity_available)
+VALUES 
+    ('SYSTEM', 0, 0),
+    ('DXB-HQ', 450, 450),
+    ('RAK-FWD', 120, 120),
+    ('FUJ-DEPOT', 300, 300);
+
+
+INSERT INTO pallet_movements (mission_id, from_location_code, to_location_code, quantity, movement_type, priority, status, notes, movement_date, confirmed_by)
+VALUES 
+    ('INIT-001', 'SYSTEM', 'DXB-HQ', 500, 'adjustment', 'Normal', 'completed', 'Initial Stock Upload', NOW() - INTERVAL '30 days', 'Admin'),
+    ('MSN-001', 'DXB-HQ', 'RAK-FWD', 50, 'deployment', 'Normal', 'completed', 'Weekly Supply', NOW() - INTERVAL '5 days', 'Admin'),
+    ('MSN-002', 'DXB-HQ', 'FUJ-DEPOT', 100, 'deployment', 'High', 'completed', 'Heavy Cargo', NOW() - INTERVAL '4 days', 'Admin'),
+    ('MSN-003', 'RAK-FWD', 'DXB-HQ', 10, 'return', 'Normal', 'completed', 'Damaged Returns', NOW() - INTERVAL '3 days', 'Logistics Officer');
+
+SELECT 'Database Reset & Seeded Successfully' as status;
+SELECT * FROM locations;

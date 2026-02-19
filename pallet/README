@@ -1,0 +1,187 @@
+Here is the complete, copy-pasteable **README.md** file for your project. It is structured specifically for a user with no technical background.
+
+---
+
+# 🛡️ Pallet Ledger Pro: Military Logistics System
+
+**Pallet Ledger Pro** is a high-security, local-first logistics platform designed to track inventory across multiple operational bases. It uses a **Double-Entry Ledger** system (similar to a bank) to ensure every pallet is accounted for and no assets go missing during transit.
+
+---
+
+## 🏗️ System Requirements
+
+Before starting, ensure you have **Docker Desktop** installed. This is the "engine" that runs the application and its database safely on your computer.
+
+* **Download Docker Desktop:** [Click here for Mac/Windows](https://www.docker.com/products/docker-desktop/).
+* **Status:** Ensure the "Docker Whale" icon is visible and green in your system tray before proceeding.
+
+---
+
+## 🚀 Installation & Setup (Step-by-Step)
+
+### **1. Prepare the Project Folder**
+
+1. Unzip the project files into a folder on your computer (e.g., `Desktop/pallet-ledger`).
+2. Open this folder in your terminal or command prompt.
+
+### **2. Create the Secret Configuration File**
+
+The system requires an `.env` file to securely connect to its database.
+
+1. Inside the main folder, create a new file named exactly **`.env`**.
+2. Paste the following text into that file and save it:
+```env
+# Database Connection for Docker Network
+DATABASE_URL="postgresql://postgres:12345@postgres:5432/pallet_ledger"
+
+```
+
+
+
+### **3. Launch the Application**
+
+1. Open your terminal and navigate to the project folder.
+2. Run the following command:
+```bash
+docker-compose up --build
+
+```
+
+
+3. **Wait for the setup:** The first launch takes 2–5 minutes as it downloads necessary libraries.
+4. Once the terminal says `Streamlit run app.py`, the system is live!
+
+---
+
+## 🖥️ How to Use the System
+
+### **1. Security Login**
+
+Open your web browser and go to: **[http://localhost:8501](https://www.google.com/search?q=http://localhost:8501)**
+
+* **Default Username:** `admin`
+* **Default Password:** `admin123`
+
+### **2. Setting up your First Base (Critical)**
+
+When you first log in, the system is empty. You must create a "building" before you can add stock.
+
+1. Go to the **📍 Locations** tab on the sidebar.
+2. Click the **"➕ Add New"** sub-tab.
+3. Enter a unique **Code** (e.g., `HQ-DXB`) and a **Name**.
+4. Set a **Max Capacity** (e.g., `5000`) and click **Create**.
+
+### **3. Adding Initial Stock**
+
+Creating a location builds an *empty warehouse*. You must now add pallets through an adjustment.
+
+1. Go to the **📦 Inventory** tab.
+2. Click the **"🔄 Stock Adjustments"** sub-tab.
+3. **Select Location:** Choose the base you just created.
+4. **Adjustment Type:** Select `Receipt`.
+5. **New Physical Count:** Enter the actual number of pallets on hand (e.g., `500`).
+6. Click **🔧 Apply Adjustment**.
+
+### **4. Tracking Movements**
+
+Use the **✈️ Movements** tab to transfer pallets between bases. Every transfer requires a **Mission ID** for the permanent audit log.
+
+---
+
+## 🏗️ Project Architecture
+
+For technical oversight, the system is divided into these core components:
+
+* **`app.py`**: The main dashboard and user interface.
+* **`services/ledger_service.py`**: The logic engine that calculates balances and prevents errors.
+* **`models.py`**: The database structure defining Users, Locations, and Movements.
+* **`auth.py`**: Handles encrypted password security (Bcrypt).
+
+---
+
+## ❓ Troubleshooting
+
+**Q: I get a "Port 5432 already in use" error.**
+**A:** You likely have another database running on your Mac.
+
+1. Stop the app: `Ctrl + C` in the terminal.
+2. Open `docker-compose.yml` and find the `ports` section.
+3. Change `- "5432:5432"` to `- "5433:5432"`.
+4. Run `docker-compose up --build` again.
+
+**Q: I want to wipe all data and start completely fresh.**
+**A:** Run this command in your terminal:
+
+```bash
+docker-compose down -v
+
+```
+
+---
+
+## 🔒 Security Note
+
+Do not share the `.env` file. It contains the database credentials required to access the system's ledger.
+
+---
+
+
+
+
+
+
+This section details the specific **Technology Stack** and **Core Concepts** used to build the Pallet Ledger Pro.
+
+---
+
+## 🛠️ The Technology Stack
+
+The project was built using a "Python-First" approach, focusing on rapid development, data integrity, and local portability.
+
+### **1. Frontend & User Interface**
+
+* **[Streamlit](https://streamlit.io/):** Used to build the entire interactive web dashboard. It allows for a clean, responsive UI written entirely in Python, eliminating the need for HTML, CSS, or JavaScript.
+* **[Plotly](https://plotly.com/python/):** The engine behind the charts and analytics. It provides interactive visualizations for tracking stock trends and mission volumes.
+
+### **2. Backend & Logic Engine**
+
+* **[Python 3.13+](https://www.python.org/):** The primary programming language used for all business logic, including stock calculations and user role management.
+* **[SQLAlchemy (ORM)](https://www.sqlalchemy.org/):** A powerful Object Relational Mapper that lets the app interact with the database using Python objects instead of raw SQL. This ensures the code is readable and maintainable.
+* **[Pydantic](https://www.google.com/search?q=https://docs.pydantic.dev/):** Used for strict data validation. It ensures that whenever a location or movement is created, the data (like quantity or mission IDs) follows the correct format before hitting the database.
+
+### **3. Database & Security**
+
+* **[PostgreSQL](https://www.postgresql.org/):** An enterprise-grade relational database used to store all movements, locations, and user data.
+* **[Bcrypt](https://pypi.org/project/bcrypt/):** Used for security. It hashes user passwords so they are never stored as plain text, protecting the system from unauthorized access.
+
+### **4. Deployment & Infrastructure**
+
+* **[Docker](https://www.docker.com/):** Containerizes the entire application and database. This ensures the app runs exactly the same on any computer without needing to manually install Python or Postgres.
+* **[Docker Compose](https://docs.docker.com/compose/):** Orchestrates the connection between the web app container and the database container automatically.
+
+---
+
+## 🧠 Core Systems Used
+
+### **The Double-Entry Ledger System**
+
+The most critical part of this project is its **Double-Entry logic**.
+
+* **Every "Movement" is a Transaction:** Just like a bank, you never just "change" a number. You record a movement FROM one base TO another.
+* **The Zero-Sum Rule:** If 10 pallets leave Base A, they *must* arrive at Base B or stay in a "Transit" state. This prevents assets from "disappearing" into thin air.
+
+### **Role-Based Access Control (RBAC)**
+
+To maintain security in a military-style environment, the project implements specific roles:
+
+* **Commander:** Full access to add users, decommission bases, and wipe audit logs.
+* **Logistics Officer:** Can record movements and view reports but cannot delete locations.
+* **Viewer:** Read-only access to view the dashboard and stock levels.
+
+### **Predictive Analytics (Burn Rate)**
+
+The "Advanced Analytics" tab uses a **Burn Rate Engine**. It analyzes the last 30 days of movement history to calculate how fast a base is using its supplies. It then predicts a "Days of Supply" number to warn commanders of imminent stockouts.
+
+---
+
+**Next Step:** Would you like me to generate a **"Project Architecture Diagram"** description that you can include in your documentation to show how these parts connect?

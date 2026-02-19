@@ -1,0 +1,140 @@
+Here is the comprehensive **README.md** file for your project. This document explains everything from the "What" and "Why" to the "How", specifically tailored for a company with 50+ employees using this system.
+
+You can copy and paste the content below directly into a file named **`README.md`** in your project folder.
+
+---
+
+# 🛡️ Pallet Ledger Pro: Enterprise Logistics System
+
+**Pallet Ledger Pro** is a secure, local-first logistics platform designed to track inventory across multiple operational bases. Built for teams of 50+ employees, it uses a **Double-Entry Ledger** system (similar to a bank) to ensure every asset is accounted for and nothing goes missing during transit.
+
+---
+
+## 🌟 Capabilities & Features
+
+* **Zero-Loss Tracking:** Every item movement is a transaction. If 50 pallets leave Base A, they *must* arrive at Base B or stay in "Transit".
+* **Role-Based Security:**
+* **Commanders:** Full system access, user management, and audit logs.
+* **Logistics Officers:** Can record movements and manage inventory.
+* **Viewers:** Read-only access to dashboards.
+
+
+* **Predictive Analytics:** Automatically calculates "Burn Rates" to warn you days before a location runs out of stock.
+* **Audit Trails:** A permanent, unalterable log of who moved what, when, and why.
+
+---
+
+## 🛠️ The Technology Stack
+
+This project uses modern, enterprise-grade tools to ensure stability, security, and scalability for a mid-sized company.
+
+1. **Frontend:** **[Streamlit](https://streamlit.io/)**
+* Builds the interactive web dashboard completely in Python.
+* *Why we use it:* It enables rapid data visualization and a clean, responsive UI without complex JavaScript.
+
+
+2. **Backend Logic:** **[Python 3.13+](https://www.python.org/)**
+* Handles all business logic, stock calculations, and data processing.
+
+
+3. **Database:** **[PostgreSQL](https://www.postgresql.org/)**
+* An industrial-strength relational database that stores Users, Locations, and the Ledger.
+* *Why we use it:* It guarantees data integrity (ACID compliance), crucial for financial or inventory ledgers.
+
+
+4. **Security:** **[Bcrypt](https://pypi.org/project/bcrypt/)**
+* Encrypts user passwords using industry-standard hashing algorithms. Passwords are never stored as plain text.
+
+
+5. **Infrastructure:** **[Docker](https://www.docker.com/)**
+* Packages the entire app (Frontend, Backend, Database) into a single "container".
+* *Benefit:* The app runs exactly the same on any computer (Mac, Windows, Linux) with zero manual configuration.
+
+
+
+---
+
+## 🚀 Installation Guide (Step-by-Step)
+
+### **Prerequisites**
+
+* **Docker Desktop:** [Download Here](https://www.docker.com/products/docker-desktop/). Ensure it is installed and running (look for the green whale icon).
+
+### **Step 1: Setup the Project**
+
+1. Unzip the project folder to your server or computer (e.g., `Desktop/pallet-ledger`).
+2. Open the folder in your terminal or VS Code.
+
+### **Step 2: Create the Secret Configuration**
+
+1. Inside the root folder, create a new file named exactly **`.env`**.
+2. Paste the following connection string inside it and save:
+```env
+# Database Connection for Docker Network
+DATABASE_URL="postgresql://postgres:12345@postgres:5432/pallet_ledger"
+
+```
+
+
+
+### **Step 3: Launch the System**
+
+1. Open your terminal in the project folder.
+2. Run this command to build and start the system:
+```bash
+docker-compose up --build
+
+```
+
+
+3. **Wait:** The first installation takes 2-5 minutes. When the terminal says `Streamlit run app.py`, the system is live.
+
+---
+
+## 🖥️ How to Use (For Staff)
+
+### **1. Login**
+
+Open your web browser (Chrome/Edge/Safari) and navigate to:
+👉 **[http://localhost:8501](https://www.google.com/search?q=http://localhost:8501)**
+
+* **Default Admin:** `admin`
+* **Default Password:** `admin123`
+* *(Note: Change this password immediately in the Settings tab)*
+
+### **2. Initial Setup (Admin Only)**
+
+When you first launch, the database is empty. Follow this sequence:
+
+1. **Create Bases:** Go to **📍 Locations > Add New**. Create your HQ and Forward Bases.
+2. **Initialize Stock:** Go to **📦 Inventory > Stock Adjustments**. Select your HQ and perform a "Receipt" adjustment to add your starting inventory (e.g., 5000 units).
+
+### **3. Daily Operations**
+
+* **Logistics Team:** Use the **✈️ Movements** tab to transfer items. A "Mission ID" is required for every transfer.
+* **Commanders:** Check the **📈 Analytics** tab daily to monitor "Days of Supply" and prevent stockouts.
+
+---
+
+## ❓ Troubleshooting
+
+* **Error: "Port 5432 already in use"**
+* *Cause:* You have another database running on this computer.
+* *Fix:* Open `docker-compose.yml`, change the line `- "5432:5432"` to `- "5433:5432"`. Then run `docker-compose up --build` again.
+
+
+* **How do I wipe the system and start fresh?**
+* Run this command in the terminal: `docker-compose down -v` (The `-v` deletes the database volume).
+
+
+
+---
+
+## 🏗️ Architecture Diagram
+
+For the IT Team:
+
+* **User Access** ➔ **Streamlit UI** (Port 8501)
+* **Streamlit** ➔ **Ledger Service** (Python Logic Layer)
+* **Ledger Service** ➔ **PostgreSQL** (Port 5432, Internal Docker Network)
+* **Storage** ➔ **Docker Volume** (Persists data even if container restarts)
